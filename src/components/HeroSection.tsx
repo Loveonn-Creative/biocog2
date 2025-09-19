@@ -93,6 +93,7 @@ export const HeroSection = ({ onVoiceClick, onScanClick, onGuestClick }: HeroSec
                 variant="ghost" 
                 size="sm"
                 className="text-muted-foreground hover:text-primary transition-colors"
+                onClick={() => window.location.href = '/reports'}
               >
                 <FileText className="w-4 h-4 mr-2" />
                 View Reports

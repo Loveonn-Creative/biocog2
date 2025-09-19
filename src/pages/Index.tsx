@@ -19,6 +19,9 @@ import {
   Phone,
   Mail
 } from "lucide-react";
+import { Layout } from "@/components/Layout";
+import { MobileNavigation } from "@/components/MobileNavigation";
+import { FloatingActionButton } from "@/components/FloatingActionButton";
 
 const Index = () => {
   const [showVoice, setShowVoice] = useState(false);
@@ -78,26 +81,7 @@ const Index = () => {
               <Badge variant="secondary" className="ml-2">Beta</Badge>
             </div>
             
-            <div className="hidden md:flex items-center space-x-6">
-              <Button variant="ghost" size="sm">Features</Button>
-              <Button variant="ghost" size="sm">Resources</Button>
-              <Button variant="ghost" size="sm">Help</Button>
-              <Button 
-                onClick={() => setShowOnboarding(true)}
-                className="btn-hero"
-                size="sm"
-              >
-                Get Started
-              </Button>
-            </div>
-
-            <Button 
-              onClick={() => setShowOnboarding(true)}
-              className="md:hidden btn-hero"
-              size="sm"
-            >
-              Start
-            </Button>
+            <MobileNavigation />
           </div>
         </div>
       </nav>
@@ -221,10 +205,18 @@ const Index = () => {
                   <Phone className="w-4 h-4" />
                   <span>+91 1800-BIOCOG</span>
                 </div>
-                <div className="pt-2">
+                <div className="pt-2 space-y-2">
                   <Button size="sm" variant="secondary">
                     <HelpCircle className="w-4 h-4 mr-2" />
                     Get Help
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="w-full bg-success/20 text-success hover:bg-success/30 border-success/50"
+                    onClick={() => window.location.href = '/recycle'}
+                  >
+                    Recycle Now
                   </Button>
                 </div>
               </div>
@@ -247,6 +239,8 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      <FloatingActionButton />
 
       {/* Modals */}
       <VoiceInterface
