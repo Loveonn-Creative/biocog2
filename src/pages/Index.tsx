@@ -54,10 +54,10 @@ const Index = () => {
       { name: "ESG Guide", href: "#esg-guide" }
     ],
     company: [
-      { name: "About Us", href: "#about" },
+      { name: "About Us", href: "/about" },
       { name: "Partnerships", href: "#partnerships" },
       { name: "Recyclers Network", href: "#recyclers" },
-      { name: "Careers", href: "#careers" }
+      { name: "Careers", href: "/career" }
     ],
     legal: [
       { name: "Privacy Policy", href: "#privacy" },

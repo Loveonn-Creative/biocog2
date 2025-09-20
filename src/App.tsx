@@ -8,6 +8,8 @@ import Dashboard from "./pages/Dashboard";
 import Reports from "./pages/Reports";
 import EWasteRecycling from "./pages/EWasteRecycling";
 import Help from "./pages/Help";
+import Career from "./pages/Career";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/reports" element={<Reports />} />
           <Route path="/recycle" element={<EWasteRecycling />} />
           <Route path="/help" element={<Help />} />
+          <Route path="/career" element={<Career />} />
+          <Route path="/about" element={<About />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
