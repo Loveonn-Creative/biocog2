@@ -169,6 +169,9 @@ const Index = () => {
                     {link.name}
                   </a>
                 ))}
+                <a href="/green-lending" className="block text-sm text-background/80 hover:text-background transition-colors">
+                  Green Lending
+                </a>
               </div>
             </div>
 
