@@ -243,33 +243,6 @@ export const CarbonCalculator = () => {
         </Card>
       </div>
 
-      {/* Formula Breakdown */}
-      <Card className="mt-8 p-8">
-        <h4 className="text-xl font-bold text-foreground mb-4 text-center">Live Formula Calculation</h4>
-        <div className="bg-muted/30 p-6 rounded-2xl font-mono text-sm overflow-x-auto">
-          <div className="text-center space-y-2">
-            <div>
-              <span className="text-muted-foreground">Base:</span> {quantity} × {selectedProduct.baseFactor} = 
-              <span className="text-primary font-bold"> {calculation.baseEmission.toFixed(2)} tCO2e</span>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Regional:</span> {calculation.baseEmission.toFixed(2)} × {selectedRegion.modifier} = 
-              <span className="text-accent font-bold"> {calculation.regionalAdjustment.toFixed(2)} tCO2e</span>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Tech Adj:</span> {calculation.regionalAdjustment.toFixed(2)} × {(techEfficiency[0]/100).toFixed(2)} = 
-              <span className="text-success font-bold"> {calculation.techAdjustment.toFixed(2)} tCO2e</span>
-            </div>
-            <div>
-              <span className="text-muted-foreground">IoT Reduction:</span> -{calculation.iotReduction.toFixed(2)} tCO2e
-            </div>
-            <div className="border-t border-border pt-2 mt-4">
-              <span className="text-muted-foreground">Final:</span> 
-              <span className="text-primary font-bold text-lg"> {calculation.finalEmission.toFixed(2)} tCO2e</span>
-            </div>
-          </div>
-        </div>
-      </Card>
     </div>
   );
 };

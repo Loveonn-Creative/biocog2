@@ -168,55 +168,6 @@ export const TechnicalDeepDive = () => {
                 ))}
               </div>
 
-              {/* Code Example */}
-              <Card className="p-6 bg-gradient-card">
-                <div className="flex items-center gap-2 mb-4">
-                  <Code className="w-5 h-5 text-primary" />
-                  <h4 className="text-lg font-bold text-foreground">Implementation Example</h4>
-                </div>
-                
-                <div className="bg-slate-900 text-slate-100 p-6 rounded-lg overflow-x-auto">
-                  <pre className="text-sm">
-                    {layer.id === 'enrichment' && `
-// Product Mapping Engine
-const productMapper = async (description, hsnCode) => {
-  const nlpResult = await nlpModel.classify(description);
-  const standardProduct = await hsnDatabase.lookup(hsnCode);
-  
-  return {
-    category: nlpResult.category,
-    specifications: nlpResult.specs,
-    emissionFactor: standardProduct.baseFactor,
-    confidence: nlpResult.confidence
-  };
-};`}
-                    {layer.id === 'calculation' && `
-// Carbon Intensity Calculation
-const calculateEmissions = (product, quantity, location, techScore) => {
-  const baseFactor = product.emissionFactor;
-  const regionalModifier = getRegionalModifier(location);
-  const techModifier = techScore / 100;
-  
-  return quantity * baseFactor * regionalModifier * techModifier;
-};`}
-                    {layer.id === 'verification' && `
-// IoT Data Integration
-const processIoTData = async (deviceId, timestamp) => {
-  const sensorData = await iotGateway.getData(deviceId);
-  const verified = await cryptoValidator.verify(sensorData);
-  
-  if (verified) {
-    return {
-      consumption: sensorData.kWh,
-      timestamp: timestamp,
-      verified: true,
-      hash: generateHash(sensorData)
-    };
-  }
-};`}
-                  </pre>
-                </div>
-              </Card>
             </TabsContent>
           );
         })}

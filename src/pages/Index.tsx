@@ -172,6 +172,9 @@ const Index = () => {
                 <a href="/green-lending" className="block text-sm text-background/80 hover:text-background transition-colors">
                   Green Lending
                 </a>
+                <a href="/gstn-carbon" className="block text-sm text-background/80 hover:text-background transition-colors">
+                  GSTN → Carbon Credits
+                </a>
               </div>
             </div>
 
