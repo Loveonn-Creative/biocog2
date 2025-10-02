@@ -43,7 +43,7 @@ const Index = () => {
   const footerLinks = {
     product: [
       { name: "Features", href: "#features" },
-      { name: "Pricing", href: "#pricing" },
+      { name: "Pricing & Plans", href: "/pricing" },
       { name: "API Docs", href: "#api" },
       { name: "Integrations", href: "#integrations" }
     ],

@@ -12,6 +12,7 @@ import Career from "./pages/Career";
 import About from "./pages/About";
 import GStnToCarbon from "./pages/GStnToCarbon";
 import GreenLending from "./pages/GreenLending";
+import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/gstn-carbon" element={<GStnToCarbon />} />
           <Route path="/green-lending" element={<GreenLending />} />
+          <Route path="/pricing" element={<Pricing />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
