@@ -29,6 +29,14 @@ const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
 
+  // Check URL params for onboarding trigger
+  useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('onboarding') === 'true') {
+      setShowOnboarding(true);
+    }
+  });
+
   const handleOnboardingComplete = (userData: any) => {
     setUserProfile(userData);
     setShowOnboarding(false);

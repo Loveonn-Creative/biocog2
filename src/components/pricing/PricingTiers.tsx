@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Check, Sparkles, Zap, Crown } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 const tiers = [
   {
@@ -78,6 +80,29 @@ const tiers = [
 
 export const PricingTiers = () => {
   const [isYearly, setIsYearly] = useState(false);
+  const navigate = useNavigate();
+
+  const handlePlanSelection = (planId: string) => {
+    switch (planId) {
+      case 'freemium':
+        // Navigate to home with onboarding trigger
+        navigate('/?onboarding=true');
+        toast.success('Starting your 90-day free trial!');
+        break;
+      case 'payg':
+        // Navigate to dashboard (will require auth)
+        navigate('/dashboard');
+        toast.info('Please sign in to activate Pay-as-you-go plan');
+        break;
+      case 'enterprise':
+        // Navigate to contact/about page
+        navigate('/about');
+        toast.info('Our team will contact you shortly');
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <section className="py-20 px-6">
@@ -161,6 +186,7 @@ export const PricingTiers = () => {
                         : 'bg-accent hover:bg-accent/90'
                     }`}
                     size="lg"
+                    onClick={() => handlePlanSelection(tier.id)}
                   >
                     {tier.cta}
                   </Button>
