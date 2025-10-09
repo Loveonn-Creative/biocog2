@@ -22,6 +22,7 @@ import {
 import { Layout } from "@/components/Layout";
 import { MobileNavigation } from "@/components/MobileNavigation";
 import { FloatingActionButton } from "@/components/FloatingActionButton";
+import { AIChatSupport } from "@/components/AIChatSupport";
 
 const Index = () => {
   const [showVoice, setShowVoice] = useState(false);
@@ -40,8 +41,8 @@ const Index = () => {
   const handleOnboardingComplete = (userData: any) => {
     setUserProfile(userData);
     setShowOnboarding(false);
-    // Here you would typically save to Supabase or localStorage
-    console.log("User onboarded:", userData);
+    // Navigate to authentication to create account
+    window.location.href = '/auth?redirect=/dashboard';
   };
 
   const handleScanComplete = (scanData: any) => {
@@ -81,15 +82,24 @@ const Index = () => {
       <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-sm border-b border-border z-40">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-hero rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">B</span>
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-hero rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold">B</span>
+                </div>
+                <span className="text-xl font-bold text-foreground">Biocog</span>
+                <Badge variant="secondary" className="ml-2">Beta</Badge>
               </div>
-              <span className="text-xl font-bold text-foreground">Biocog</span>
-              <Badge variant="secondary" className="ml-2">Beta</Badge>
-            </div>
-            
-            <MobileNavigation />
+              
+              <div className="flex items-center space-x-4">
+                <Button 
+                  variant="ghost" 
+                  className="hidden md:inline-flex"
+                  onClick={() => window.location.href = '/auth'}
+                >
+                  Sign In
+                </Button>
+                <MobileNavigation />
+              </div>
           </div>
         </div>
       </nav>
@@ -255,6 +265,7 @@ const Index = () => {
       </footer>
 
       <FloatingActionButton />
+      <AIChatSupport />
 
       {/* Modals */}
       <VoiceInterface
