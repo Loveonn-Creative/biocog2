@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Camera, 
   Mic, 
@@ -10,7 +10,8 @@ import {
   Calendar,
   MapPin,
   Phone,
-  Download
+  Download,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -19,18 +20,78 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { AnalyticsCharts } from "@/components/AnalyticsCharts";
 import { Layout } from "@/components/Layout";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { RealTimeCarbonSimulator } from "@/components/RealTimeCarbonSimulator";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = useState("month");
-
-  // Mock user data
-  const userStats = {
-    totalScans: 12,
-    co2Saved: 8.4,
-    creditsEarned: 15650,
-    loanPreApproved: 350000,
-    esgScore: 78,
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userStats, setUserStats] = useState({
+    totalScans: 0,
+    co2Saved: 0,
+    creditsEarned: 0,
+    loanPreApproved: 0,
+    esgScore: 0,
     nextPayment: "15 Dec 2024"
+  });
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Load profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+    
+    setUserProfile(profile);
+
+    // Load carbon emissions
+    const { data: emissions } = await supabase
+      .from('carbon_emissions')
+      .select('co2_emissions')
+      .eq('user_id', user.id);
+
+    // Load carbon credits
+    const { data: credits } = await supabase
+      .from('carbon_credits')
+      .select('credits_earned, credit_value')
+      .eq('user_id', user.id);
+
+    // Load scans
+    const { data: scans } = await supabase
+      .from('invoice_scans')
+      .select('id')
+      .eq('user_id', user.id);
+
+    // Calculate stats
+    const totalCO2 = emissions?.reduce((sum, e) => sum + Number(e.co2_emissions), 0) || 0;
+    const totalCredits = credits?.reduce((sum, c) => sum + Number(c.credit_value), 0) || 0;
+
+    setUserStats({
+      totalScans: scans?.length || 0,
+      co2Saved: totalCO2,
+      creditsEarned: totalCredits,
+      loanPreApproved: totalCredits * 15,
+      esgScore: Math.min(100, 50 + (scans?.length || 0) * 5),
+      nextPayment: "15 Dec 2024"
+    });
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    toast.success("Signed out successfully");
+    navigate('/');
   };
 
   const recentScans = [
@@ -123,8 +184,9 @@ const Dashboard = () => {
   ];
 
   return (
-    <Layout title="Dashboard">
-      <div className="min-h-screen bg-background">
+    <ProtectedRoute>
+      <Layout title="Dashboard">
+        <div className="min-h-screen bg-background">
         {/* Header */}
         <header className="bg-card border-b border-border">
           <div className="container mx-auto px-6 py-4">
@@ -144,6 +206,10 @@ const Dashboard = () => {
                 <Button variant="outline" size="sm">
                   <Download className="w-4 h-4 mr-2" />
                   Export Data
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
                 </Button>
               </div>
             </div>
@@ -235,6 +301,14 @@ const Dashboard = () => {
               </div>
             </div>
             
+            {/* Real-Time Carbon Simulator */}
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold text-foreground mb-6">
+                Carbon Credit Simulator | कार्बन क्रेडिट सिम्युलेटर
+              </h2>
+              <RealTimeCarbonSimulator />
+            </div>
+
             {/* Analytics Charts */}
             <AnalyticsCharts className="mb-8" />
             
@@ -368,7 +442,8 @@ const Dashboard = () => {
         </div>
         
         </div>
-    </Layout>
+      </Layout>
+    </ProtectedRoute>
   );
 };
 
