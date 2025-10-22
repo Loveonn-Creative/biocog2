@@ -22,14 +22,19 @@ import { AnalyticsCharts } from "@/components/AnalyticsCharts";
 import { Layout } from "@/components/Layout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RealTimeCarbonSimulator } from "@/components/RealTimeCarbonSimulator";
+import { MonetizationDashboard } from "@/components/MonetizationDashboard";
+import { TransactionHistory } from "@/components/TransactionHistory";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = useState("month");
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState("overview");
   const [userStats, setUserStats] = useState({
     totalScans: 0,
     co2Saved: 0,
@@ -41,7 +46,42 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadUserData();
+    subscribeToRealtimeUpdates();
   }, []);
+
+  const subscribeToRealtimeUpdates = () => {
+    const channel = supabase
+      .channel('dashboard-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'carbon_credits',
+        },
+        () => {
+          console.log('Carbon credits updated, reloading data...');
+          loadUserData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'carbon_emissions',
+        },
+        () => {
+          console.log('Carbon emissions updated, reloading data...');
+          loadUserData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
 
   const loadUserData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -203,6 +243,7 @@ const Dashboard = () => {
                 <Badge variant="secondary" className="bg-success/20 text-success">
                   ESG Score: {userStats.esgScore}
                 </Badge>
+                <NotificationCenter />
                 <Button variant="outline" size="sm">
                   <Download className="w-4 h-4 mr-2" />
                   Export Data
@@ -220,12 +261,32 @@ const Dashboard = () => {
         <div className="container mx-auto px-6 py-8 space-y-8 mb-20">
           {/* Enhanced Dashboard with Tabs */}
           <div className="w-full">
-            <div className="grid w-full grid-cols-4 mb-8">
-              <button className="p-3 text-center bg-primary/10 text-primary rounded-lg font-medium">Overview</button>
-              <button className="p-3 text-center text-muted-foreground hover:bg-muted/50 rounded-lg font-medium">Analytics</button>
-              <button className="p-3 text-center text-muted-foreground hover:bg-muted/50 rounded-lg font-medium">Reports</button>
-              <button className="p-3 text-center text-muted-foreground hover:bg-muted/50 rounded-lg font-medium">Recycling</button>
-            </div>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-5 mb-8">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="monetization">Monetization</TabsTrigger>
+                <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                <TabsTrigger value="transactions">Transactions</TabsTrigger>
+                <TabsTrigger value="recycling">Recycling</TabsTrigger>
+              </TabsList>
+
+              {/* Monetization Tab */}
+              <TabsContent value="monetization" className="space-y-4">
+                <MonetizationDashboard />
+              </TabsContent>
+
+              {/* Transactions Tab */}
+              <TabsContent value="transactions" className="space-y-4">
+                <TransactionHistory />
+              </TabsContent>
+
+              {/* Analytics Tab */}
+              <TabsContent value="analytics" className="space-y-4">
+                <AnalyticsCharts />
+              </TabsContent>
+
+              {/* Overview Tab */}
+              <TabsContent value="overview" className="space-y-8">
             
             {/* Stats Overview */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
@@ -438,6 +499,8 @@ const Dashboard = () => {
                 </div>
               </div>
             </Card>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
         

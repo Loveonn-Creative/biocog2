@@ -32,6 +32,7 @@ export const RealTimeCarbonSimulator = () => {
   const [iotReduction, setIotReduction] = useState([0]);
   const [saving, setSaving] = useState(false);
   const [scanId, setScanId] = useState<string | null>(null);
+  const [marketRate, setMarketRate] = useState(2500);
   
   const [calculation, setCalculation] = useState({
     baseEmission: 0,
@@ -39,8 +40,31 @@ export const RealTimeCarbonSimulator = () => {
     techAdjustment: 0,
     iotReduction: 0,
     finalEmission: 0,
-    carbonCredits: 0
+    carbonCredits: 0,
+    monetaryValue: 0
   });
+
+  // Load market rate
+  useEffect(() => {
+    loadMarketRate();
+  }, []);
+
+  const loadMarketRate = async () => {
+    try {
+      const { data } = await supabase
+        .from('carbon_market_rates')
+        .select('rate_per_credit')
+        .order('effective_date', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (data) {
+        setMarketRate(data.rate_per_credit);
+      }
+    } catch (error) {
+      console.error('Error loading market rate:', error);
+    }
+  };
 
   // Real-time calculation
   useEffect(() => {
@@ -49,7 +73,8 @@ export const RealTimeCarbonSimulator = () => {
     const techAdjustment = regionalAdjustment * (techEfficiency[0] / 100);
     const iotReductionAmount = techAdjustment * (iotReduction[0] / 100);
     const finalEmission = techAdjustment - iotReductionAmount;
-    const carbonCredits = Math.max(0, baseEmission - finalEmission) * 0.8;
+    const carbonCredits = (baseEmission - finalEmission) / 1000;
+    const monetaryValue = carbonCredits * marketRate;
 
     setCalculation({
       baseEmission,
@@ -57,9 +82,10 @@ export const RealTimeCarbonSimulator = () => {
       techAdjustment,
       iotReduction: iotReductionAmount,
       finalEmission,
-      carbonCredits
+      carbonCredits,
+      monetaryValue,
     });
-  }, [selectedProduct, quantity, selectedRegion, techEfficiency, iotReduction]);
+  }, [quantity, selectedProduct, selectedRegion, techEfficiency, iotReduction, marketRate]);
 
   const handleSaveSimulation = async () => {
     setSaving(true);
@@ -121,7 +147,7 @@ export const RealTimeCarbonSimulator = () => {
             user_id: user.id,
             emission_id: scan.id,
             credits_earned: calculation.carbonCredits,
-            credit_value: calculation.carbonCredits * 2500,
+            credit_value: calculation.monetaryValue,
             status: 'pending' as any
           }]);
 
@@ -129,7 +155,7 @@ export const RealTimeCarbonSimulator = () => {
       }
 
       toast.success("Simulation saved successfully!");
-      toast.info(`Carbon credits: ${calculation.carbonCredits.toFixed(2)} (₹${(calculation.carbonCredits * 2500).toLocaleString('en-IN')})`);
+      toast.info(`Carbon credits: ${calculation.carbonCredits.toFixed(2)} (₹${calculation.monetaryValue.toLocaleString('en-IN')})`);
     } catch (error: any) {
       console.error("Save error:", error);
       toast.error(error.message || "Failed to save simulation");
@@ -329,7 +355,8 @@ export const RealTimeCarbonSimulator = () => {
                     {calculation.carbonCredits.toFixed(2)} Credits
                   </div>
                   <p className="text-sm opacity-90">
-                    Estimated value: ₹{(calculation.carbonCredits * 2500).toLocaleString('en-IN')}
+                    Market rate: ₹{marketRate.toLocaleString('en-IN')}/credit<br/>
+                    Estimated value: ₹{calculation.monetaryValue.toLocaleString('en-IN')}
                   </p>
                 </div>
               </div>

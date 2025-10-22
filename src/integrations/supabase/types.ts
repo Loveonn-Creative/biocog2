@@ -168,6 +168,30 @@ export type Database = {
           },
         ]
       }
+      carbon_market_rates: {
+        Row: {
+          created_at: string | null
+          effective_date: string
+          id: string
+          rate_per_credit: number
+          source: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          effective_date: string
+          id?: string
+          rate_per_credit: number
+          source?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          effective_date?: string
+          id?: string
+          rate_per_credit?: number
+          source?: string | null
+        }
+        Relationships: []
+      }
       certifications: {
         Row: {
           certification_name: string
@@ -240,6 +264,48 @@ export type Database = {
           requirements?: Json
           standard_name?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      credit_redemptions: {
+        Row: {
+          bank_details: Json | null
+          created_at: string | null
+          credit_amount: number
+          id: string
+          monetary_value: number
+          processed_at: string | null
+          redemption_type: string | null
+          status: string | null
+          transaction_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          bank_details?: Json | null
+          created_at?: string | null
+          credit_amount: number
+          id?: string
+          monetary_value: number
+          processed_at?: string | null
+          redemption_type?: string | null
+          status?: string | null
+          transaction_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          bank_details?: Json | null
+          created_at?: string | null
+          credit_amount?: number
+          id?: string
+          monetary_value?: number
+          processed_at?: string | null
+          redemption_type?: string | null
+          status?: string | null
+          transaction_id?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -534,6 +600,42 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string | null
+          data: Json | null
+          id: string
+          message: string | null
+          read: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          message?: string | null
+          read?: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          message?: string | null
+          read?: boolean | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       payment_history: {
         Row: {
           amount: number
@@ -640,6 +742,10 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bank_account_holder: string | null
+          bank_account_number: string | null
+          bank_ifsc: string | null
+          bank_verified: boolean | null
           business_name: string
           business_type: Database["public"]["Enums"]["business_type"] | null
           created_at: string
@@ -647,11 +753,17 @@ export type Database = {
           id: string
           language_preference: string | null
           location: Json | null
+          pan_number: string | null
+          pan_verified: boolean | null
           phone: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          bank_account_holder?: string | null
+          bank_account_number?: string | null
+          bank_ifsc?: string | null
+          bank_verified?: boolean | null
           business_name: string
           business_type?: Database["public"]["Enums"]["business_type"] | null
           created_at?: string
@@ -659,11 +771,17 @@ export type Database = {
           id?: string
           language_preference?: string | null
           location?: Json | null
+          pan_number?: string | null
+          pan_verified?: boolean | null
           phone?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          bank_account_holder?: string | null
+          bank_account_number?: string | null
+          bank_ifsc?: string | null
+          bank_verified?: boolean | null
           business_name?: string
           business_type?: Database["public"]["Enums"]["business_type"] | null
           created_at?: string
@@ -671,6 +789,8 @@ export type Database = {
           id?: string
           language_preference?: string | null
           location?: Json | null
+          pan_number?: string | null
+          pan_verified?: boolean | null
           phone?: string | null
           updated_at?: string
           user_id?: string
