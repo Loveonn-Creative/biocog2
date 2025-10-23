@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { RedemptionFlow } from "./RedemptionFlow";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Coins, TrendingUp, Wallet, ArrowUpRight, Calendar } from "lucide-react";

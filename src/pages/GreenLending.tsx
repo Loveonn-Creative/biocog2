@@ -1,15 +1,54 @@
 import { Layout } from "@/components/Layout";
+import { useEffect, useState } from "react";
 import { GreenLendingHero } from "@/components/GreenLendingHero";
 import { InvoiceToLoanCalculator } from "@/components/InvoiceToLoanCalculator";
 import { GreenCreditScore } from "@/components/GreenCreditScore";
 import { SubsidySchemes } from "@/components/SubsidySchemes";
 import { LoanOffers } from "@/components/LoanOffers";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import { CarbonCreditIntegration } from "@/components/CarbonCreditIntegration";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, FileText, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const GreenLending = () => {
+  const [loanEligibility, setLoanEligibility] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    loadLoanEligibility();
+  }, []);
+
+  const loadLoanEligibility = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("calculate-loan-eligibility", {
+        body: { user_id: user.id },
+      });
+
+      if (error) throw error;
+
+      setLoanEligibility(data);
+    } catch (error: any) {
+      console.error("Error loading loan eligibility:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load loan eligibility data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Layout title="Green Lending">
       <div className="min-h-screen bg-background">
