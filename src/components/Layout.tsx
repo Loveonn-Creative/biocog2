@@ -1,5 +1,6 @@
 import { MobileNavigation } from "@/components/MobileNavigation";
 import { FloatingActionButton } from "@/components/FloatingActionButton";
+import { AIChatSupport } from "@/components/AIChatSupport";
 import { Badge } from "@/components/ui/badge";
 
 interface LayoutProps {
@@ -35,11 +36,12 @@ export const Layout = ({ children, showNavigation = true, title }: LayoutProps) 
         </nav>
       )}
 
-      <main className={showNavigation ? "pt-20" : ""}>
+      <main className={`${showNavigation ? "pt-20" : ""} safe-area-bottom`}>
         {children}
       </main>
 
       <FloatingActionButton />
+      <AIChatSupport />
     </div>
   );
 };

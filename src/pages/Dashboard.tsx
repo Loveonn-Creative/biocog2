@@ -11,7 +11,8 @@ import {
   MapPin,
   Phone,
   Download,
-  LogOut
+  LogOut,
+  Link
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -25,6 +26,7 @@ import { RealTimeCarbonSimulator } from "@/components/RealTimeCarbonSimulator";
 import { MonetizationDashboard } from "@/components/MonetizationDashboard";
 import { TransactionHistory } from "@/components/TransactionHistory";
 import { NotificationCenter } from "@/components/NotificationCenter";
+import { BlockchainVisualization } from "@/components/BlockchainVisualization";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -262,11 +264,12 @@ const Dashboard = () => {
           {/* Enhanced Dashboard with Tabs */}
           <div className="w-full">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-5 mb-8">
+              <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-8">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="monetization">Monetization</TabsTrigger>
                 <TabsTrigger value="analytics">Analytics</TabsTrigger>
                 <TabsTrigger value="transactions">Transactions</TabsTrigger>
+                <TabsTrigger value="blockchain">Blockchain</TabsTrigger>
                 <TabsTrigger value="recycling">Recycling</TabsTrigger>
               </TabsList>
 
@@ -283,6 +286,21 @@ const Dashboard = () => {
               {/* Analytics Tab */}
               <TabsContent value="analytics" className="space-y-4">
                 <AnalyticsCharts />
+              </TabsContent>
+
+              {/* Blockchain Tab */}
+              <TabsContent value="blockchain" className="space-y-4">
+                <Card className="p-6 mb-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Link className="w-6 h-6 text-primary" />
+                    <h2 className="text-2xl font-bold text-foreground">Blockchain Verification</h2>
+                  </div>
+                  <p className="text-muted-foreground mb-4">
+                    All carbon credit calculations are verified and stored on blockchain for complete transparency and immutability.
+                  </p>
+                  <Badge variant="default">Real-time Verification</Badge>
+                </Card>
+                <BlockchainVisualization />
               </TabsContent>
 
               {/* Overview Tab */}
