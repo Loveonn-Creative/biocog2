@@ -8,3 +8,9 @@ verify_jwt = false
 
 [functions.calculate-loan-eligibility]
 verify_jwt = true
+
+[functions.activate-trial-subscription]
+verify_jwt = true
+
+[functions.calculate-green-score]
+verify_jwt = false
