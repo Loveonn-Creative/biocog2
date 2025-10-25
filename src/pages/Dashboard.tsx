@@ -27,6 +27,8 @@ import { MonetizationDashboard } from "@/components/MonetizationDashboard";
 import { TransactionHistory } from "@/components/TransactionHistory";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { BlockchainVisualization } from "@/components/BlockchainVisualization";
+import { GreenScoreWidget } from "@/components/GreenScoreWidget";
+import { SubscriptionActivator } from "@/components/SubscriptionActivator";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -37,6 +39,7 @@ const Dashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("month");
   const [userProfile, setUserProfile] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [showSubscriptionActivator, setShowSubscriptionActivator] = useState(false);
   const [userStats, setUserStats] = useState({
     totalScans: 0,
     co2Saved: 0,
@@ -97,6 +100,15 @@ const Dashboard = () => {
       .single();
     
     setUserProfile(profile);
+
+    // Check subscription status
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select('status')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    
+    setShowSubscriptionActivator(!subscription);
 
     // Load carbon emissions
     const { data: emissions } = await supabase
@@ -305,6 +317,14 @@ const Dashboard = () => {
 
               {/* Overview Tab */}
               <TabsContent value="overview" className="space-y-8">
+            
+            {/* Subscription Activator */}
+            {showSubscriptionActivator && (
+              <SubscriptionActivator onActivated={() => setShowSubscriptionActivator(false)} />
+            )}
+
+            {/* Green Score Widget */}
+            <GreenScoreWidget />
             
             {/* Stats Overview */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
