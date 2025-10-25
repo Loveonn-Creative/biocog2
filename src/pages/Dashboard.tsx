@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { 
   Camera, 
   Mic, 
@@ -10,9 +10,7 @@ import {
   Calendar,
   MapPin,
   Phone,
-  Download,
-  LogOut,
-  Link
+  Download
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,131 +19,18 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { AnalyticsCharts } from "@/components/AnalyticsCharts";
 import { Layout } from "@/components/Layout";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { RealTimeCarbonSimulator } from "@/components/RealTimeCarbonSimulator";
-import { MonetizationDashboard } from "@/components/MonetizationDashboard";
-import { TransactionHistory } from "@/components/TransactionHistory";
-import { NotificationCenter } from "@/components/NotificationCenter";
-import { BlockchainVisualization } from "@/components/BlockchainVisualization";
-import { GreenScoreWidget } from "@/components/GreenScoreWidget";
-import { SubscriptionActivator } from "@/components/SubscriptionActivator";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = useState("month");
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState("overview");
-  const [showSubscriptionActivator, setShowSubscriptionActivator] = useState(false);
-  const [userStats, setUserStats] = useState({
-    totalScans: 0,
-    co2Saved: 0,
-    creditsEarned: 0,
-    loanPreApproved: 0,
-    esgScore: 0,
+
+  // Mock user data
+  const userStats = {
+    totalScans: 12,
+    co2Saved: 8.4,
+    creditsEarned: 15650,
+    loanPreApproved: 350000,
+    esgScore: 78,
     nextPayment: "15 Dec 2024"
-  });
-
-  useEffect(() => {
-    loadUserData();
-    subscribeToRealtimeUpdates();
-  }, []);
-
-  const subscribeToRealtimeUpdates = () => {
-    const channel = supabase
-      .channel('dashboard-updates')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'carbon_credits',
-        },
-        () => {
-          console.log('Carbon credits updated, reloading data...');
-          loadUserData();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'carbon_emissions',
-        },
-        () => {
-          console.log('Carbon emissions updated, reloading data...');
-          loadUserData();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  };
-
-  const loadUserData = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    // Load profile
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', user.id)
-      .single();
-    
-    setUserProfile(profile);
-
-    // Check subscription status
-    const { data: subscription } = await supabase
-      .from('subscriptions')
-      .select('status')
-      .eq('user_id', user.id)
-      .maybeSingle();
-    
-    setShowSubscriptionActivator(!subscription);
-
-    // Load carbon emissions
-    const { data: emissions } = await supabase
-      .from('carbon_emissions')
-      .select('co2_emissions')
-      .eq('user_id', user.id);
-
-    // Load carbon credits
-    const { data: credits } = await supabase
-      .from('carbon_credits')
-      .select('credits_earned, credit_value')
-      .eq('user_id', user.id);
-
-    // Load scans
-    const { data: scans } = await supabase
-      .from('invoice_scans')
-      .select('id')
-      .eq('user_id', user.id);
-
-    // Calculate stats
-    const totalCO2 = emissions?.reduce((sum, e) => sum + Number(e.co2_emissions), 0) || 0;
-    const totalCredits = credits?.reduce((sum, c) => sum + Number(c.credit_value), 0) || 0;
-
-    setUserStats({
-      totalScans: scans?.length || 0,
-      co2Saved: totalCO2,
-      creditsEarned: totalCredits,
-      loanPreApproved: totalCredits * 15,
-      esgScore: Math.min(100, 50 + (scans?.length || 0) * 5),
-      nextPayment: "15 Dec 2024"
-    });
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    toast.success("Signed out successfully");
-    navigate('/');
   };
 
   const recentScans = [
@@ -238,9 +123,8 @@ const Dashboard = () => {
   ];
 
   return (
-    <ProtectedRoute>
-      <Layout title="Dashboard">
-        <div className="min-h-screen bg-background">
+    <Layout title="Dashboard">
+      <div className="min-h-screen bg-background">
         {/* Header */}
         <header className="bg-card border-b border-border">
           <div className="container mx-auto px-6 py-4">
@@ -257,14 +141,9 @@ const Dashboard = () => {
                 <Badge variant="secondary" className="bg-success/20 text-success">
                   ESG Score: {userStats.esgScore}
                 </Badge>
-                <NotificationCenter />
                 <Button variant="outline" size="sm">
                   <Download className="w-4 h-4 mr-2" />
                   Export Data
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleSignOut}>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
                 </Button>
               </div>
             </div>
@@ -275,56 +154,12 @@ const Dashboard = () => {
         <div className="container mx-auto px-6 py-8 space-y-8 mb-20">
           {/* Enhanced Dashboard with Tabs */}
           <div className="w-full">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-8">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="monetization">Monetization</TabsTrigger>
-                <TabsTrigger value="analytics">Analytics</TabsTrigger>
-                <TabsTrigger value="transactions">Transactions</TabsTrigger>
-                <TabsTrigger value="blockchain">Blockchain</TabsTrigger>
-                <TabsTrigger value="recycling">Recycling</TabsTrigger>
-              </TabsList>
-
-              {/* Monetization Tab */}
-              <TabsContent value="monetization" className="space-y-4">
-                <MonetizationDashboard />
-              </TabsContent>
-
-              {/* Transactions Tab */}
-              <TabsContent value="transactions" className="space-y-4">
-                <TransactionHistory />
-              </TabsContent>
-
-              {/* Analytics Tab */}
-              <TabsContent value="analytics" className="space-y-4">
-                <AnalyticsCharts />
-              </TabsContent>
-
-              {/* Blockchain Tab */}
-              <TabsContent value="blockchain" className="space-y-4">
-                <Card className="p-6 mb-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Link className="w-6 h-6 text-primary" />
-                    <h2 className="text-2xl font-bold text-foreground">Blockchain Verification</h2>
-                  </div>
-                  <p className="text-muted-foreground mb-4">
-                    All carbon credit calculations are verified and stored on blockchain for complete transparency and immutability.
-                  </p>
-                  <Badge variant="default">Real-time Verification</Badge>
-                </Card>
-                <BlockchainVisualization />
-              </TabsContent>
-
-              {/* Overview Tab */}
-              <TabsContent value="overview" className="space-y-8">
-            
-            {/* Subscription Activator */}
-            {showSubscriptionActivator && (
-              <SubscriptionActivator onActivated={() => setShowSubscriptionActivator(false)} />
-            )}
-
-            {/* Green Score Widget */}
-            <GreenScoreWidget />
+            <div className="grid w-full grid-cols-4 mb-8">
+              <button className="p-3 text-center bg-primary/10 text-primary rounded-lg font-medium">Overview</button>
+              <button className="p-3 text-center text-muted-foreground hover:bg-muted/50 rounded-lg font-medium">Analytics</button>
+              <button className="p-3 text-center text-muted-foreground hover:bg-muted/50 rounded-lg font-medium">Reports</button>
+              <button className="p-3 text-center text-muted-foreground hover:bg-muted/50 rounded-lg font-medium">Recycling</button>
+            </div>
             
             {/* Stats Overview */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
@@ -400,14 +235,6 @@ const Dashboard = () => {
               </div>
             </div>
             
-            {/* Real-Time Carbon Simulator */}
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold text-foreground mb-6">
-                Carbon Credit Simulator | कार्बन क्रेडिट सिम्युलेटर
-              </h2>
-              <RealTimeCarbonSimulator />
-            </div>
-
             {/* Analytics Charts */}
             <AnalyticsCharts className="mb-8" />
             
@@ -537,14 +364,11 @@ const Dashboard = () => {
                 </div>
               </div>
             </Card>
-              </TabsContent>
-            </Tabs>
           </div>
         </div>
         
         </div>
-      </Layout>
-    </ProtectedRoute>
+    </Layout>
   );
 };
 

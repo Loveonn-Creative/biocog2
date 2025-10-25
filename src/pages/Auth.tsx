@@ -110,12 +110,7 @@ export default function Auth() {
       }
 
       toast.success("Account created! Please check your email to verify.");
-      
-      // For demo purposes, automatically redirect to profile setup
-      // In production, wait for email verification
-      setTimeout(() => {
-        navigate('/profile-setup');
-      }, 2000);
+      setActiveTab("signin");
     } catch (error) {
       toast.error("An unexpected error occurred");
       console.error("Sign up error:", error);

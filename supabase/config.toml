@@ -2,15 +2,3 @@ project_id = "zyjaqyxuapjngpvjqlcg"
 
 [functions.ai-chat]
 verify_jwt = false
-
-[functions.send-notification-email]
-verify_jwt = false
-
-[functions.calculate-loan-eligibility]
-verify_jwt = true
-
-[functions.activate-trial-subscription]
-verify_jwt = true
-
-[functions.calculate-green-score]
-verify_jwt = false

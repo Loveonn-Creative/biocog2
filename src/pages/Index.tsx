@@ -7,7 +7,6 @@ import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
 import { 
   FileText, 
   Users, 
@@ -42,12 +41,8 @@ const Index = () => {
   const handleOnboardingComplete = (userData: any) => {
     setUserProfile(userData);
     setShowOnboarding(false);
-    // Show info about signing up
-    toast.info("Create an account to save your progress and unlock all features!");
     // Navigate to authentication to create account
-    setTimeout(() => {
-      window.location.href = '/auth?redirect=/profile-setup';
-    }, 1500);
+    window.location.href = '/auth?redirect=/dashboard';
   };
 
   const handleScanComplete = (scanData: any) => {
@@ -56,28 +51,28 @@ const Index = () => {
 
   const footerLinks = {
     product: [
-      { name: "Features", href: "/#features" },
+      { name: "Features", href: "#features" },
       { name: "Pricing & Plans", href: "/pricing" },
-      { name: "Dashboard", href: "/dashboard" },
-      { name: "Green Lending", href: "/green-lending" }
+      { name: "API Docs", href: "#api" },
+      { name: "Integrations", href: "#integrations" }
     ],
     resources: [
-      { name: "Help Center", href: "/help" },
-      { name: "GSTN → Carbon", href: "/gstn-carbon" },
-      { name: "E-Waste Recycling", href: "/recycle" },
-      { name: "Reports", href: "/reports" }
+      { name: "Help Center", href: "#help" },
+      { name: "Knowledge Base", href: "#kb" },
+      { name: "Video Tutorials", href: "#videos" },
+      { name: "ESG Guide", href: "#esg-guide" }
     ],
     company: [
       { name: "About Us", href: "/about" },
-      { name: "Contact Sales", href: "/about#contact" },
-      { name: "Careers", href: "/career" },
-      { name: "Pricing", href: "/pricing" }
+      { name: "Partnerships", href: "#partnerships" },
+      { name: "Recyclers Network", href: "#recyclers" },
+      { name: "Careers", href: "/career" }
     ],
     legal: [
-      { name: "Privacy Policy", href: "/about#privacy" },
-      { name: "Terms of Service", href: "/about#terms" },
-      { name: "Security", href: "/about#security" },
-      { name: "Support", href: "/help" }
+      { name: "Privacy Policy", href: "#privacy" },
+      { name: "Terms of Service", href: "#terms" },
+      { name: "Security", href: "#security" },
+      { name: "Compliance", href: "#compliance" }
     ]
   };
 

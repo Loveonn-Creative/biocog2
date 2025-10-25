@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { EnhancedReports } from "@/components/EnhancedReports";
 import { 
   Download, 
   FileText, 
@@ -364,19 +363,6 @@ const Reports = () => {
             </div>
           </Card>
         </div>
-
-        {/* Enhanced Financial Reports */}
-        <Card className="p-6">
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold text-foreground mb-2">
-              Financial Analytics | वित्तीय विश्लेषण
-            </h3>
-            <p className="text-muted-foreground">
-              Comprehensive financial metrics from your sustainability efforts
-            </p>
-          </div>
-          <EnhancedReports />
-        </Card>
 
         {/* Quick Actions */}
         <Card className="p-8 text-center bg-gradient-to-r from-primary/5 to-accent/5">

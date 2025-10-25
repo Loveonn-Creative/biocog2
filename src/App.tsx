@@ -15,7 +15,6 @@ import GreenLending from "./pages/GreenLending";
 import Pricing from "./pages/Pricing";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
-import { ProfileSetup } from "./components/ProfileSetup";
 
 const queryClient = new QueryClient();
 
@@ -37,7 +36,6 @@ const App = () => (
           <Route path="/green-lending" element={<GreenLending />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/profile-setup" element={<ProfileSetup />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
