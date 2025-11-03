@@ -64,12 +64,12 @@ All colors MUST be HSL. Sustainability-focused with calming greens and warm acce
     --font-subtitle: 1.25rem;
     --font-body: 1rem;
 
-    /* Animation Speeds */
-    --transition-fast: 0.15s ease-out;
-    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  /* Animation Speeds */
+  --transition-fast: 0.15s ease-out;
+  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-    --radius: 0.75rem;
+  --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -170,5 +170,42 @@ All colors MUST be HSL. Sustainability-focused with calming greens and warm acce
   @keyframes loading-dots {
     0%, 80%, 100% { transform: scale(0); }
     40% { transform: scale(1); }
+  }
+
+  /* Mobile Optimizations */
+  .hover-scale {
+    @apply transition-transform duration-300;
+  }
+
+  @media (min-width: 768px) {
+    .hover-scale:hover {
+      @apply scale-105;
+    }
+  }
+
+  /* Fade-in animation */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  /* Bottom navigation safe area */
+  .safe-area-bottom {
+    @apply pb-20 md:pb-0;
+  }
+
+  /* Touch-friendly tap targets */
+  .tap-target {
+    @apply min-h-[44px] min-w-[44px];
   }
 }

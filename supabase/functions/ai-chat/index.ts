@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, context } = await req.json();
+    const { query, language = 'en', context = 'general_support' } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -30,13 +30,13 @@ Your expertise includes:
 
 Guidelines:
 - Be conversational and helpful
-- Use simple Indian English
+- Use simple Indian English or ${language} if requested
 - Provide actionable advice
 - Reference Indian government schemes when relevant
 - Keep responses concise (2-3 sentences unless detailed explanation needed)
 - If you don't know something, be honest and suggest contacting support
 
-Context about the user or query: ${context || 'General inquiry'}`;
+Context: ${context}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -48,7 +48,7 @@ Context about the user or query: ${context || 'General inquiry'}`;
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
-          ...messages
+          { role: "user", content: query }
         ],
         stream: false,
       }),
@@ -79,7 +79,7 @@ Context about the user or query: ${context || 'General inquiry'}`;
     const data = await response.json();
     const aiMessage = data.choices[0]?.message?.content || "I apologize, I couldn't process that. Please try again.";
 
-    return new Response(JSON.stringify({ message: aiMessage }), {
+    return new Response(JSON.stringify({ response: aiMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 

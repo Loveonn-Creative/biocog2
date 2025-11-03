@@ -53,7 +53,7 @@ export type Database = {
           event_data: Json | null
           event_type: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           page_url: string | null
           user_agent: string | null
           user_id: string | null
@@ -63,7 +63,7 @@ export type Database = {
           event_data?: Json | null
           event_type: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           page_url?: string | null
           user_agent?: string | null
           user_id?: string | null
@@ -73,7 +73,7 @@ export type Database = {
           event_data?: Json | null
           event_type?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           page_url?: string | null
           user_agent?: string | null
           user_id?: string | null
@@ -168,6 +168,30 @@ export type Database = {
           },
         ]
       }
+      carbon_market_rates: {
+        Row: {
+          created_at: string | null
+          effective_date: string
+          id: string
+          rate_per_credit: number
+          source: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          effective_date: string
+          id?: string
+          rate_per_credit: number
+          source?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          effective_date?: string
+          id?: string
+          rate_per_credit?: number
+          source?: string | null
+        }
+        Relationships: []
+      }
       certifications: {
         Row: {
           certification_name: string
@@ -240,6 +264,48 @@ export type Database = {
           requirements?: Json
           standard_name?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      credit_redemptions: {
+        Row: {
+          bank_details: Json | null
+          created_at: string | null
+          credit_amount: number
+          id: string
+          monetary_value: number
+          processed_at: string | null
+          redemption_type: string | null
+          status: string | null
+          transaction_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          bank_details?: Json | null
+          created_at?: string | null
+          credit_amount: number
+          id?: string
+          monetary_value: number
+          processed_at?: string | null
+          redemption_type?: string | null
+          status?: string | null
+          transaction_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          bank_details?: Json | null
+          created_at?: string | null
+          credit_amount?: number
+          id?: string
+          monetary_value?: number
+          processed_at?: string | null
+          redemption_type?: string | null
+          status?: string | null
+          transaction_id?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -486,6 +552,36 @@ export type Database = {
         }
         Relationships: []
       }
+      green_score_audit_log: {
+        Row: {
+          calculation_details: Json | null
+          change_reason: string | null
+          created_at: string | null
+          id: string
+          new_score: number | null
+          old_score: number | null
+          user_id: string | null
+        }
+        Insert: {
+          calculation_details?: Json | null
+          change_reason?: string | null
+          created_at?: string | null
+          id?: string
+          new_score?: number | null
+          old_score?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          calculation_details?: Json | null
+          change_reason?: string | null
+          created_at?: string | null
+          id?: string
+          new_score?: number | null
+          old_score?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       invoice_scans: {
         Row: {
           created_at: string
@@ -530,6 +626,42 @@ export type Database = {
             | null
           scan_date?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string | null
+          data: Json | null
+          id: string
+          message: string | null
+          read: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          message?: string | null
+          read?: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          message?: string | null
+          read?: boolean | null
+          title?: string
+          type?: string
           user_id?: string
         }
         Relationships: []
@@ -640,38 +772,101 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ai_preferences: Json | null
+          avatar_url: string | null
+          bank_account_holder: string | null
+          bank_account_number: string | null
+          bank_ifsc: string | null
+          bank_verified: boolean | null
           business_name: string
           business_type: Database["public"]["Enums"]["business_type"] | null
           created_at: string
+          green_score: number | null
+          green_score_factors: Json | null
+          green_score_history: Json | null
+          green_score_last_updated: string | null
           gstin: string | null
           id: string
           language_preference: string | null
+          last_active_at: string | null
           location: Json | null
+          onboarding_completed: boolean | null
+          onboarding_data: Json | null
+          pan_number: string | null
+          pan_verified: boolean | null
           phone: string | null
+          preferences: Json | null
+          profile_completion_percentage: number | null
+          profile_views: number | null
+          total_co2_reduced: number | null
+          total_credits_earned: number | null
+          total_scans: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          ai_preferences?: Json | null
+          avatar_url?: string | null
+          bank_account_holder?: string | null
+          bank_account_number?: string | null
+          bank_ifsc?: string | null
+          bank_verified?: boolean | null
           business_name: string
           business_type?: Database["public"]["Enums"]["business_type"] | null
           created_at?: string
+          green_score?: number | null
+          green_score_factors?: Json | null
+          green_score_history?: Json | null
+          green_score_last_updated?: string | null
           gstin?: string | null
           id?: string
           language_preference?: string | null
+          last_active_at?: string | null
           location?: Json | null
+          onboarding_completed?: boolean | null
+          onboarding_data?: Json | null
+          pan_number?: string | null
+          pan_verified?: boolean | null
           phone?: string | null
+          preferences?: Json | null
+          profile_completion_percentage?: number | null
+          profile_views?: number | null
+          total_co2_reduced?: number | null
+          total_credits_earned?: number | null
+          total_scans?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          ai_preferences?: Json | null
+          avatar_url?: string | null
+          bank_account_holder?: string | null
+          bank_account_number?: string | null
+          bank_ifsc?: string | null
+          bank_verified?: boolean | null
           business_name?: string
           business_type?: Database["public"]["Enums"]["business_type"] | null
           created_at?: string
+          green_score?: number | null
+          green_score_factors?: Json | null
+          green_score_history?: Json | null
+          green_score_last_updated?: string | null
           gstin?: string | null
           id?: string
           language_preference?: string | null
+          last_active_at?: string | null
           location?: Json | null
+          onboarding_completed?: boolean | null
+          onboarding_data?: Json | null
+          pan_number?: string | null
+          pan_verified?: boolean | null
           phone?: string | null
+          preferences?: Json | null
+          profile_completion_percentage?: number | null
+          profile_views?: number | null
+          total_co2_reduced?: number | null
+          total_credits_earned?: number | null
+          total_scans?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -835,6 +1030,42 @@ export type Database = {
           },
         ]
       }
+      user_queries: {
+        Row: {
+          context_data: Json | null
+          created_at: string | null
+          id: string
+          language: string | null
+          query_text: string
+          query_type: string | null
+          response_text: string | null
+          satisfaction_rating: number | null
+          user_id: string | null
+        }
+        Insert: {
+          context_data?: Json | null
+          created_at?: string | null
+          id?: string
+          language?: string | null
+          query_text: string
+          query_type?: string | null
+          response_text?: string | null
+          satisfaction_rating?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          context_data?: Json | null
+          created_at?: string | null
+          id?: string
+          language?: string | null
+          query_text?: string
+          query_type?: string | null
+          response_text?: string | null
+          satisfaction_rating?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -874,10 +1105,7 @@ export type Database = {
           trial_ends_at: string
         }[]
       }
-      is_admin: {
-        Args: { user_uuid: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { user_uuid: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "msme_owner" | "accountant"
