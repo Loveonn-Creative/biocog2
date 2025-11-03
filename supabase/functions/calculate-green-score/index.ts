@@ -21,13 +21,32 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const { user_id } = await req.json();
-
-    if (!user_id) {
-      throw new Error('user_id is required');
+    
+    // Authenticate the user first
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('Authorization header required');
     }
+
+    // Use anon key for authentication check
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const authClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: authError } = await authClient.auth.getUser();
+    
+    if (authError || !user) {
+      throw new Error('User not authenticated');
+    }
+
+    // Use authenticated user's ID only - don't accept from request body
+    const user_id = user.id;
+    
+    console.log('Calculating Green Score for authenticated user:', user_id);
+
+    // Use SERVICE_ROLE_KEY for database operations (bypasses RLS for system calculations)
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     console.log('Calculating Green Score for user:', user_id);
 
@@ -291,11 +310,21 @@ Deno.serve(async (req) => {
     );
   } catch (error) {
     console.error('Error calculating green score:', error);
+    
+    // Sanitize error messages to prevent information leakage
+    let errorMessage = 'An error occurred while calculating your green score. Please try again later.';
+    let statusCode = 500;
+    
+    if (error.message === 'User not authenticated' || error.message === 'Authorization header required') {
+      errorMessage = 'Authentication required';
+      statusCode = 401;
+    }
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+        status: statusCode,
       }
     );
   }

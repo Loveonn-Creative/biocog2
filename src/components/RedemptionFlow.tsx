@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Wallet, TrendingUp, CreditCard, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
+import { redemptionSchema } from "@/lib/validation";
 
 interface RedemptionFlowProps {
   availableCredits: number;
@@ -70,6 +71,22 @@ export const RedemptionFlow = ({ availableCredits, currentMarketRate, onSuccess 
     if (!redemptionType || !creditAmount) return;
 
     const amount = parseFloat(creditAmount);
+    
+    // Validate input using schema
+    const validationResult = redemptionSchema.safeParse({
+      creditAmount: amount,
+      redemptionType: redemptionType,
+    });
+
+    if (!validationResult.success) {
+      toast({
+        title: "Validation Error",
+        description: validationResult.error.issues[0]?.message || "Invalid input",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (amount < minAmount || amount > availableCredits) {
       toast({
         title: "Invalid Amount",

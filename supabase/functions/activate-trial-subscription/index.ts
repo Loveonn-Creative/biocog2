@@ -27,10 +27,6 @@ Deno.serve(async (req) => {
 
     console.log('Activating trial for user:', user.id);
 
-    // Calculate trial end date (90 days from now)
-    const trialEndsAt = new Date();
-    trialEndsAt.setDate(trialEndsAt.getDate() + 90);
-
     // Check if user already has a subscription
     const { data: existingSub } = await supabase
       .from('subscriptions')
@@ -38,10 +34,56 @@ Deno.serve(async (req) => {
       .eq('user_id', user.id)
       .maybeSingle();
 
+    // SECURITY: Prevent trial abuse - only allow one trial per user
+    if (existingSub) {
+      // Check if user has already used their trial
+      const hasUsedTrial = existingSub.status === 'trial' || 
+                          existingSub.status === 'trial_expired' || 
+                          existingSub.status === 'active' ||
+                          existingSub.trial_ends_at !== null;
+      
+      if (hasUsedTrial) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Trial already used. Please subscribe to continue using premium features.',
+            code: 'TRIAL_ALREADY_USED'
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 403,
+          }
+        );
+      }
+    }
+
+    // Check profile preferences for trial activation history
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('preferences')
+      .eq('user_id', user.id)
+      .single();
+
+    if (profile?.preferences && (profile.preferences as any).trial_activated_at) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Trial can only be activated once per account.',
+          code: 'TRIAL_ALREADY_ACTIVATED'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 403,
+        }
+      );
+    }
+
+    // Calculate trial end date (90 days from now)
+    const trialEndsAt = new Date();
+    trialEndsAt.setDate(trialEndsAt.getDate() + 90);
+
     let subscription;
 
     if (existingSub) {
-      // Update existing subscription
+      // Create new trial (should only reach here if no trial was ever used)
       const { data, error } = await supabase
         .from('subscriptions')
         .update({
@@ -131,11 +173,24 @@ Deno.serve(async (req) => {
     );
   } catch (error) {
     console.error('Error activating trial:', error);
+    
+    // Sanitize error messages to prevent information leakage
+    let errorMessage = 'An error occurred while activating your trial. Please try again or contact support.';
+    let statusCode = 500;
+    
+    if (error.message === 'User not authenticated') {
+      errorMessage = 'Authentication required';
+      statusCode = 401;
+    } else if (error.message?.includes('Trial already')) {
+      errorMessage = error.message;
+      statusCode = 403;
+    }
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+        status: statusCode,
       }
     );
   }
