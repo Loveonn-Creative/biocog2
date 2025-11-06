@@ -50,6 +50,11 @@ export default function Auth() {
   const [signUpBusiness, setSignUpBusiness] = useState("");
 
   useEffect(() => {
+    // Check for password reset
+    if (searchParams.get('reset') === 'true') {
+      toast.info("Please check your email for password reset instructions");
+    }
+
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -170,6 +175,9 @@ export default function Auth() {
           toast.error("This email is already registered. Please sign in instead.");
           setActiveTab("signin");
           setSignInEmail(signUpEmail);
+        } else if (error.message.includes("Database error")) {
+          toast.error("Sign-up temporarily unavailable. Please try again in a moment.");
+          console.error("Database error during sign-up:", error);
         } else if (error.message.includes("Password")) {
           toast.error("Password must be at least 6 characters with uppercase and numbers");
         } else {
@@ -193,6 +201,31 @@ export default function Auth() {
     } catch (error: any) {
       toast.error("An unexpected error occurred during sign up");
       console.error("Sign up error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!signInEmail) {
+      toast.error("Please enter your email first");
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(signInEmail, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
+      });
+      
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success("Password reset email sent! Check your inbox.");
+      }
+    } catch (error) {
+      toast.error("Failed to send reset email");
+      console.error("Password reset error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -273,7 +306,17 @@ export default function Auth() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="signin-password">Password</Label>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="signin-password">Password</Label>
+                        <button
+                          type="button"
+                          onClick={handleForgotPassword}
+                          className="text-xs text-primary hover:underline"
+                          disabled={isLoading}
+                        >
+                          Forgot password?
+                        </button>
+                      </div>
                       <div className="relative">
                         <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input
