@@ -18,25 +18,23 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // System prompt for Biocog AI Assistant
-    const systemPrompt = `You are Biocog AI Assistant, a helpful and friendly guide for India's green MSME platform. 
+    // System prompt for Biocog AI Assistant - STRICT SHORT-FORM RULES
+    const systemPrompt = `You are Biocog AI Assistant for India's green MSME platform.
 
-Your expertise includes:
-- ESG reporting and carbon credit tracking
-- Green lending and financial assistance
-- E-waste recycling programs
-- Compliance standards and certifications
-- GSTN integration for carbon calculations
+CRITICAL OUTPUT RULES:
+- Maximum 20-30 words per response (2-3 lines only)
+- Use simple everyday language - no jargon
+- Zero exclamation marks, zero bold/italic, zero formatting
+- Direct answer only - no filler words
+- Factual tone - no motivation, no drama
+- Plain text only
 
-Guidelines:
-- Be conversational and helpful
-- Use simple Indian English or ${language} if requested
-- Provide actionable advice
-- Reference Indian government schemes when relevant
-- Keep responses concise (2-3 sentences unless detailed explanation needed)
-- If you don't know something, be honest and suggest contacting support
+Your knowledge: ESG, carbon credits, green lending, e-waste, GSTN integration.
 
-Context: ${context}`;
+Language: ${language === 'hi' ? 'simple Hindi' : 'simple English'}
+Context: ${context}
+
+Answer the question directly in under 30 words.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -77,7 +75,16 @@ Context: ${context}`;
     }
 
     const data = await response.json();
-    const aiMessage = data.choices[0]?.message?.content || "I apologize, I couldn't process that. Please try again.";
+    let aiMessage = data.choices[0]?.message?.content || "मुझे समझ नहीं आया। फिर से पूछें।";
+    
+    // Force short responses - trim to max 180 chars
+    if (aiMessage.length > 180) {
+      const sentences = aiMessage.split(/[.।]/);
+      aiMessage = sentences.slice(0, 2).join(language === 'hi' ? '। ' : '. ') + (language === 'hi' ? '।' : '.');
+    }
+    
+    // Remove all exclamation marks and extra formatting
+    aiMessage = aiMessage.replace(/!/g, '.').replace(/\*\*/g, '').replace(/\*/g, '').trim();
 
     return new Response(JSON.stringify({ response: aiMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

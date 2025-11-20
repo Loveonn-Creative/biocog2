@@ -3,6 +3,7 @@ import { Mic, MicOff, Volume2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
 
 interface VoiceInterfaceProps {
   isOpen: boolean;
@@ -79,31 +80,46 @@ export const VoiceInterface = ({ isOpen, onClose }: VoiceInterfaceProps) => {
   const handleQuery = async (query: string) => {
     setIsThinking(true);
     
-    // Simulate AI thinking time
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Simple keyword matching for demo
-    const matchedQA = qaDemoData.find(qa => 
-      query.toLowerCase().includes(qa.question.toLowerCase().substring(0, 5)) ||
-      query.toLowerCase().includes('esg') ||
-      query.toLowerCase().includes('carbon') ||
-      query.toLowerCase().includes('loan') ||
-      query.toLowerCase().includes('credit')
-    );
+    try {
+      // Call AI edge function with language context
+      const lang = currentLanguage.startsWith('hi') ? 'hi' : 'en';
+      
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
+        body: { 
+          query,
+          language: lang,
+          context: 'voice_interface'
+        }
+      });
 
-    if (matchedQA) {
-      setResponse(matchedQA.answer);
-      // Text-to-speech
+      if (error) throw error;
+
+      const aiResponse = data?.response || (lang === 'hi' 
+        ? "मुझे समझ नहीं आया। फिर से पूछें।"
+        : "I didn't understand. Please ask again.");
+      
+      setResponse(aiResponse);
+      
+      // Text-to-speech with proper rate and pitch for clarity
       if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(matchedQA.answer);
+        const utterance = new SpeechSynthesisUtterance(aiResponse);
+        utterance.lang = currentLanguage;
+        utterance.rate = 0.9; // Slightly slower for clarity
+        utterance.pitch = 1.0;
+        speechSynthesis.speak(utterance);
+      }
+    } catch (error) {
+      console.error('Voice query error:', error);
+      const errorMsg = currentLanguage.startsWith('hi')
+        ? "कुछ गड़बड़ हुई। फिर कोशिश करें।"
+        : "Something went wrong. Try again.";
+      setResponse(errorMsg);
+      
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(errorMsg);
         utterance.lang = currentLanguage;
         speechSynthesis.speak(utterance);
       }
-    } else {
-      const defaultResponse = currentLanguage.startsWith('hi') 
-        ? "मैं आपकी मदद कर सकता हूं। ESG, कार्बन क्रेडिट या ग्रीन लोन के बारे में पूछें।"
-        : "I can help you with ESG, carbon credits, or green loans. Please ask your question.";
-      setResponse(defaultResponse);
     }
     
     setIsThinking(false);
