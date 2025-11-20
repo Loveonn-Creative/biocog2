@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
 const GreenLending = () => {
   const [loanEligibility, setLoanEligibility] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -26,6 +27,7 @@ const GreenLending = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
+        setIsGuest(true);
         setLoading(false);
         return;
       }
@@ -54,6 +56,27 @@ const GreenLending = () => {
       <div className="min-h-screen bg-background">
         {/* Hero Section */}
         <GreenLendingHero />
+        
+        {/* Guest Mode Banner */}
+        {isGuest && (
+          <section className="py-6 px-6">
+            <div className="container mx-auto max-w-7xl">
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-6 flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex-1 min-w-[200px]">
+                  <p className="text-sm text-muted-foreground">
+                    🔒 <strong>Sign in</strong> to see personalized loan offers, calculate your eligibility, and access your green credit score.
+                  </p>
+                </div>
+                <Link to="/auth">
+                  <Button className="btn-hero">
+                    Create Free Account
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
         
         {/* Invoice to Loan Calculator */}
         <section className="py-20 px-6">
