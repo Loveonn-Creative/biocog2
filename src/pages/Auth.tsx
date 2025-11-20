@@ -55,8 +55,15 @@ export default function Auth() {
       toast.info("Please check your email for password reset instructions");
     }
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Check for existing session and clear stale tokens
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error?.message.includes("JWT") || error?.message.includes("claim")) {
+        // Clear stale session
+        supabase.auth.signOut();
+        toast.info("Session expired. Please sign in again.");
+        return;
+      }
+      
       setSession(session);
       if (session) {
         const redirect = searchParams.get('redirect') || '/dashboard';

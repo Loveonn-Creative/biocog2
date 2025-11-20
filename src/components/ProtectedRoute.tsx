@@ -15,7 +15,12 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   useEffect(() => {
     // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        // Clear invalid tokens
+        console.error("Session error:", error);
+        supabase.auth.signOut();
+      }
       setSession(session);
       setLoading(false);
       
@@ -27,7 +32,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (!session) {
+      if (!session && _event !== 'SIGNED_OUT') {
         navigate('/auth?redirect=' + window.location.pathname);
       }
     });

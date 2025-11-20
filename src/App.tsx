@@ -35,12 +35,14 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/pricing" element={<Pricing />} />
           
+          {/* Public Marketing Pages */}
+          <Route path="/gstn-carbon" element={<GStnToCarbon />} />
+          <Route path="/green-lending" element={<GreenLending />} />
+          
           {/* Protected Routes - Require Authentication */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
           <Route path="/recycle" element={<ProtectedRoute><EWasteRecycling /></ProtectedRoute>} />
-          <Route path="/gstn-carbon" element={<ProtectedRoute><GStnToCarbon /></ProtectedRoute>} />
-          <Route path="/green-lending" element={<ProtectedRoute><GreenLending /></ProtectedRoute>} />
           <Route path="/profile-setup" element={<ProtectedRoute><ProfileSetup /></ProtectedRoute>} />
           
           {/* Catch-all Route */}
