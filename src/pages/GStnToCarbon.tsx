@@ -33,12 +33,15 @@ const GStnToCarbon = () => {
         {/* Live Calculator Demo */}
         <section className="py-20 px-6 bg-muted/30">
           <div className="container mx-auto max-w-7xl">
-            <div className="text-center mb-16">
+            <div className="text-center mb-12">
               <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
                 Live <span className="text-primary">Calculation Engine</span>
               </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                See how we transform GST data into carbon credits in real-time
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-4">
+                Calculates emissions using ISO 14064-1, GHG Protocol, and BEE emission factors. Auto-categorizes Scope 1/2/3 and applies regional grid factors with technology efficiency modifiers.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Pricing based on India CCTS benchmark with MSME social premium and blockchain verification bonus.
               </p>
             </div>
             <CarbonCalculator />

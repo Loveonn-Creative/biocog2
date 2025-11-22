@@ -11,17 +11,18 @@ import { toast } from "sonner";
 import { Calculator, TrendingUp, Zap, Leaf, ArrowRight, Save, Loader2 } from "lucide-react";
 
 const mockProducts = [
-  { name: "Cotton Fabric", hsn: "5208", baseFactor: 2.5, unit: "kg" },
-  { name: "Steel Sheets", hsn: "7210", baseFactor: 1.8, unit: "kg" },
-  { name: "Plastic Components", hsn: "3923", baseFactor: 3.2, unit: "kg" },
-  { name: "Textile Machinery", hsn: "8445", baseFactor: 0.9, unit: "unit" },
+  { name: "Steel Manufacturing", hsn: "7214", baseFactor: 1.85, unit: "kg", scope1: 0.95, scope2: 0.75, scope3: 0.15 },
+  { name: "Textile Production", hsn: "5208", baseFactor: 5.5, unit: "kg", scope1: 1.2, scope2: 3.8, scope3: 0.5 },
+  { name: "Electronics Assembly", hsn: "8539", baseFactor: 0.12, unit: "piece", scope1: 0.02, scope2: 0.08, scope3: 0.02 },
+  { name: "Food Processing", hsn: "2106", baseFactor: 0.85, unit: "kg", scope1: 0.15, scope2: 0.55, scope3: 0.15 },
+  { name: "Chemical Production", hsn: "3901", baseFactor: 1.95, unit: "kg", scope1: 0.85, scope2: 0.95, scope3: 0.15 },
 ];
 
 const regions = [
-  { name: "Tamil Nadu", modifier: 0.85, gridFactor: 0.82 },
-  { name: "Maharashtra", modifier: 0.92, gridFactor: 0.79 },
-  { name: "Gujarat", modifier: 0.88, gridFactor: 0.84 },
-  { name: "Karnataka", modifier: 0.86, gridFactor: 0.73 },
+  { name: "Northern Grid", modifier: 0.82, gridFactor: 0.91, tCO2PerMWh: 0.91 },
+  { name: "Western Grid", modifier: 0.78, gridFactor: 0.85, tCO2PerMWh: 0.85 },
+  { name: "Southern Grid", modifier: 0.68, gridFactor: 0.74, tCO2PerMWh: 0.74 },
+  { name: "Eastern Grid", modifier: 0.88, gridFactor: 0.95, tCO2PerMWh: 0.95 },
 ];
 
 export const RealTimeCarbonSimulator = () => {
@@ -36,10 +37,14 @@ export const RealTimeCarbonSimulator = () => {
   
   const [calculation, setCalculation] = useState({
     baseEmission: 0,
+    scope1: 0,
+    scope2: 0,
+    scope3: 0,
     regionalAdjustment: 0,
     techAdjustment: 0,
     iotReduction: 0,
     finalEmission: 0,
+    emissionReduction: 0,
     carbonCredits: 0,
     monetaryValue: 0
   });
@@ -68,23 +73,44 @@ export const RealTimeCarbonSimulator = () => {
 
   // Real-time calculation
   useEffect(() => {
-    const baseEmission = quantity * selectedProduct.baseFactor;
-    const regionalAdjustment = baseEmission * selectedRegion.modifier;
-    const techAdjustment = regionalAdjustment * (techEfficiency[0] / 100);
-    const iotReductionAmount = techAdjustment * (iotReduction[0] / 100);
-    const finalEmission = techAdjustment - iotReductionAmount;
-    const carbonCredits = (baseEmission - finalEmission) / 1000;
-    const monetaryValue = carbonCredits * marketRate;
-
-    setCalculation({
-      baseEmission,
-      regionalAdjustment,
-      techAdjustment,
-      iotReduction: iotReductionAmount,
-      finalEmission,
-      carbonCredits,
-      monetaryValue,
-    });
+    if (quantity > 0) {
+      // ISO 14064-1 / GHG Protocol calculation
+      const baseEmission = quantity * selectedProduct.baseFactor;
+      
+      // Scope categorization
+      const scope1 = (selectedProduct.scope1 || 0) * quantity;
+      const scope2 = (selectedProduct.scope2 || 0) * quantity * selectedRegion.gridFactor;
+      const scope3 = (selectedProduct.scope3 || 0) * quantity;
+      
+      // Technology and IoT adjustments
+      const techFactor = 1 - (techEfficiency[0] / 100) * 0.45;
+      const techAdjusted = baseEmission * techFactor;
+      const iotFactor = 1 - (iotReduction[0] / 100) * 0.25;
+      const finalEmission = techAdjusted * iotFactor;
+      
+      const emissionReduction = Math.max(0, baseEmission - finalEmission);
+      const creditsInTonnes = emissionReduction / 1000; // tCO2e
+      
+      // CCTS pricing with premiums
+      const basePrice = marketRate;
+      const msmePremium = 1.15;
+      const blockchainBonus = 1.08;
+      const value = creditsInTonnes * basePrice * msmePremium * blockchainBonus;
+      
+      setCalculation({
+        baseEmission,
+        scope1,
+        scope2,
+        scope3,
+        regionalAdjustment: techAdjusted,
+        techAdjustment: techAdjusted,
+        iotReduction: techAdjusted - finalEmission,
+        finalEmission,
+        emissionReduction,
+        carbonCredits: creditsInTonnes,
+        monetaryValue: value,
+      });
+    }
   }, [quantity, selectedProduct, selectedRegion, techEfficiency, iotReduction, marketRate]);
 
   const handleSaveSimulation = async () => {

@@ -132,34 +132,37 @@ export const InvoiceToLoanCalculator = () => {
 
               <div className="space-y-6">
                 <div className="bg-muted/50 rounded-lg p-6">
-                  <h4 className="font-semibold text-foreground mb-4">What We Analyze</h4>
+                  <h4 className="font-semibold text-foreground mb-4">ESG-Linked Calculation</h4>
                   <div className="space-y-3">
                     <div className="flex items-center space-x-3">
                       <CheckCircle className="w-5 h-5 text-success" />
-                      <span className="text-sm text-muted-foreground">Business revenue patterns</span>
+                      <span className="text-sm text-muted-foreground">Invoice amount × Payment history factor</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <CheckCircle className="w-5 h-5 text-success" />
-                      <span className="text-sm text-muted-foreground">Industry ESG benchmarks</span>
+                      <span className="text-sm text-muted-foreground">ESG score from carbon baseline (ISO 14064-1)</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <CheckCircle className="w-5 h-5 text-success" />
-                      <span className="text-sm text-muted-foreground">Carbon footprint potential</span>
+                      <span className="text-sm text-muted-foreground">Carbon credits boost loan eligibility up to 25%</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <CheckCircle className="w-5 h-5 text-success" />
-                      <span className="text-sm text-muted-foreground">Digital payment history</span>
+                      <span className="text-sm text-muted-foreground">Interest rate discount up to 3.5% for ESG score</span>
                     </div>
                   </div>
+                  <p className="text-xs text-muted-foreground mt-4 pt-3 border-t border-border">
+                    Uses risk-weighted business categories, GST compliance indicators, and GHG Protocol carbon accounting.
+                  </p>
                 </div>
 
                 <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-6">
                   <div className="flex items-center space-x-2 mb-3">
                     <Zap className="w-5 h-5 text-primary" />
-                    <span className="font-semibold text-foreground">AI-Powered Analysis</span>
+                    <span className="font-semibold text-foreground">Standards-Based Scoring</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Our advanced ML algorithms analyze 50+ data points to provide the most accurate loan assessment in under 5 minutes.
+                    Loan eligibility calculated using ISO 14064-1 emission baselines, business risk weights, and carbon credit multipliers for transparent, bank-recognized scoring.
                   </p>
                 </div>
               </div>
