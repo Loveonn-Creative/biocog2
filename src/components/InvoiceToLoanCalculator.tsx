@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { 
   Upload, 
   Calculator, 
@@ -43,27 +45,36 @@ export const InvoiceToLoanCalculator = () => {
   const calculateLoan = async () => {
     setIsCalculating(true);
     
-    // Simulate API call with realistic delay
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    const amount = parseFloat(formData.amount);
-    const loanAmount = Math.floor(amount * 2.5 + Math.random() * 100000);
-    const interestRate = (8.2 + Math.random() * 2).toFixed(1);
-    const esgScore = Math.floor(75 + Math.random() * 25);
-    const carbonCredits = Math.floor(loanAmount / 5000);
-    
-    setResults({
-      loanAmount,
-      interestRate,
-      esgScore,
-      carbonCredits,
-      creditValue: carbonCredits * 75,
-      monthlyEmi: Math.floor(loanAmount * 0.012),
-      tenure: 24
-    });
-    
-    setIsCalculating(false);
-    setStep(3);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Please sign in to calculate loan eligibility");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('calculate-loan-eligibility');
+      
+      if (error) throw error;
+      
+      setResults({
+        loanAmount: data.final_loan_amount,
+        interestRate: data.interest_rate,
+        esgScore: data.esg_score,
+        carbonCredits: Math.round(data.total_credits),
+        creditValue: Math.round(data.total_credit_value),
+        monthlyEmi: data.loan_offers?.[2]?.monthly_emi || 0,
+        tenure: data.loan_offers?.[2]?.tenure_months || 36,
+        approvalProbability: data.approval_probability,
+        loanOffers: data.loan_offers
+      });
+      
+      setIsCalculating(false);
+      setStep(3);
+    } catch (error: any) {
+      console.error('Loan calculation error:', error);
+      toast.error(error.message || "Failed to calculate loan eligibility");
+      setIsCalculating(false);
+    }
   };
 
   if (step === 1) {
