@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Calculator, ArrowRight, Zap, Factory, TrendingUp } from "lucide-react";
+import { Calculator, ArrowRight, Zap, Factory, TrendingUp, TrendingDown, LineChart } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 // Emission factors based on ISO 14064-1, GHG Protocol, BEE, IPCC
 const FUEL_FACTORS = {
@@ -66,12 +68,40 @@ const CarbonEmissionsCalculator = () => {
 
   const [results, setResults] = useState<any>(null);
   const [isCalculating, setIsCalculating] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [historicalData, setHistoricalData] = useState<any[]>([]);
+  const [recommendations, setRecommendations] = useState<string[]>([]);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      if (user) {
+        fetchHistoricalData(user.id);
+      }
+    });
+  }, []);
+
+  const fetchHistoricalData = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('esg_metrics')
+      .select('date, total_emissions, energy_consumed, waste_generated')
+      .eq('user_id', userId)
+      .order('date', { ascending: true })
+      .limit(12);
+
+    if (data && !error) {
+      setHistoricalData(data.map(d => ({
+        date: new Date(d.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
+        emissions: parseFloat((d.total_emissions || 0).toFixed(2))
+      })));
+    }
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const calculateEmissions = () => {
+  const calculateEmissions = async () => {
     setIsCalculating(true);
 
     // Validate inputs
@@ -100,16 +130,65 @@ const CarbonEmissionsCalculator = () => {
     const premium = MSME_PREMIUM[formData.businessType as keyof typeof MSME_PREMIUM];
     const creditValue = total * CCTS_RATE * premium * 1.08; // 1.08 = blockchain verification bonus
 
-    setResults({
+    const calculationResults = {
       scope1: (scope1 / 1000).toFixed(3),
       scope2: (scope2 / 1000).toFixed(3),
       scope3: (scope3 / 1000).toFixed(3),
       total: total.toFixed(3),
       creditValue: Math.round(creditValue),
       esgScore: Math.min(100, Math.max(0, 100 - (total * 10))),
-    });
+    };
+
+    setResults(calculationResults);
+
+    // Save to database if user is authenticated
+    if (user) {
+      const { error } = await supabase.from('esg_metrics').insert({
+        user_id: user.id,
+        date: new Date().toISOString().split('T')[0],
+        total_emissions: parseFloat(calculationResults.total),
+        energy_consumed: parseFloat(formData.electricity) || null,
+        waste_generated: parseFloat(formData.waste) || null,
+        environmental_score: calculationResults.esgScore,
+      });
+
+      if (!error) {
+        toast.success("Calculation saved to history");
+        fetchHistoricalData(user.id);
+        generateRecommendations(calculationResults, historicalData);
+      }
+    }
 
     setIsCalculating(false);
+  };
+
+  const generateRecommendations = (current: any, history: any[]) => {
+    const recs: string[] = [];
+    
+    if (history.length >= 2) {
+      const avgPast = history.slice(-3).reduce((sum, d) => sum + d.emissions, 0) / Math.min(3, history.length);
+      const currentEmissions = parseFloat(current.total);
+      
+      if (currentEmissions > avgPast * 1.1) {
+        recs.push("⚠️ Emissions increased by " + ((currentEmissions - avgPast) / avgPast * 100).toFixed(1) + "% vs recent average");
+      } else if (currentEmissions < avgPast * 0.9) {
+        recs.push("✅ Great! Emissions reduced by " + ((avgPast - currentEmissions) / avgPast * 100).toFixed(1) + "%");
+      }
+    }
+
+    if (parseFloat(current.scope2) > parseFloat(current.scope1)) {
+      recs.push("💡 Switch to renewable energy to reduce Scope 2 emissions");
+    }
+
+    if (parseFloat(current.scope3) > parseFloat(current.total) * 0.4) {
+      recs.push("📦 Optimize supply chain - Scope 3 is high");
+    }
+
+    if (recs.length === 0) {
+      recs.push("📊 Track regularly to identify improvement areas");
+    }
+
+    setRecommendations(recs);
   };
 
   const handleSendToPipeline = () => {
@@ -315,6 +394,56 @@ const CarbonEmissionsCalculator = () => {
             {isCalculating ? "Calculating..." : "Calculate Emissions"}
             <Calculator className="ml-2 w-5 h-5" />
           </Button>
+
+          {/* Historical Trends - Authenticated Users */}
+          {user && historicalData.length > 0 && (
+            <Card className="mt-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <LineChart className="w-5 h-5 text-primary" />
+                  Your Emissions Trend
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <RechartsLineChart data={historicalData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="date" className="text-xs" />
+                    <YAxis className="text-xs" />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--background))', 
+                        border: '1px solid hsl(var(--border))' 
+                      }} 
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="emissions" 
+                      stroke="hsl(var(--primary))" 
+                      strokeWidth={2} 
+                      dot={{ fill: 'hsl(var(--primary))' }} 
+                    />
+                  </RechartsLineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Recommendations */}
+          {user && recommendations.length > 0 && (
+            <Card className="mt-6 bg-muted/30">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg">Improvement Recommendations</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {recommendations.map((rec, idx) => (
+                  <div key={idx} className="flex items-start gap-2 p-3 bg-background rounded-lg">
+                    <span className="text-sm">{rec}</span>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Results */}
           {results && (
