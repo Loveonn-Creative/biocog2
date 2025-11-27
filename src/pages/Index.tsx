@@ -63,6 +63,7 @@ const Index = () => {
     ],
     resources: [
       { name: "Help Center", href: "/help" },
+      { name: "Carbon Calculator", href: "/carbon-calculator" },
       { name: "GSTN → Carbon", href: "/gstn-carbon" },
       { name: "E-Waste Recycling", href: "/recycle" },
       { name: "Reports", href: "/reports" }

@@ -16,6 +16,7 @@ import GreenLending from "./pages/GreenLending";
 import Pricing from "./pages/Pricing";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import CarbonEmissionsCalculator from "./pages/CarbonEmissionsCalculator";
 import { ProfileSetup } from "./components/ProfileSetup";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
           {/* Public Marketing Pages */}
           <Route path="/gstn-carbon" element={<GStnToCarbon />} />
           <Route path="/green-lending" element={<GreenLending />} />
+          <Route path="/carbon-calculator" element={<CarbonEmissionsCalculator />} />
           
           {/* Protected Routes - Require Authentication */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
