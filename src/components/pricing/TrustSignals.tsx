@@ -1,29 +1,5 @@
-import { Shield, Lock, Award, TrendingUp } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
-
-const trustBadges = [
-  {
-    icon: Shield,
-    title: "256-bit SSL Encryption",
-    description: "Your data is secured with bank-grade encryption"
-  },
-  {
-    icon: Award,
-    title: "ISO 27001 Certified",
-    description: "International security management standards"
-  },
-  {
-    icon: Lock,
-    title: "PCI DSS Compliant",
-    description: "Secure payment processing standards"
-  },
-  {
-    icon: TrendingUp,
-    title: "RBI Guidelines",
-    description: "Fully compliant with Indian banking regulations"
-  }
-];
 
 const stats = [
   { value: "10,247", label: "MSMEs using Biocog" },
@@ -32,45 +8,37 @@ const stats = [
   { value: "99.9%", label: "Uptime guarantee" }
 ];
 
+const valueProps = [
+  "You don't pay for software – you pay for savings.",
+  "Convert your GST, invoices, and daily work into real climate money.",
+  "Enterprise-grade climate benefits – without enterprise pricing."
+];
+
 export const TrustSignals = () => {
   return (
-    <section className="py-20 px-6 bg-muted/30">
-      <div className="container mx-auto max-w-7xl">
-        {/* Security Badges */}
+    <section className="py-12 md:py-16 px-4 md:px-6 bg-muted/30">
+      <div className="container mx-auto max-w-5xl">
+        {/* Value Propositions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
+          className="text-center mb-12"
         >
-          <h2 className="text-3xl font-bold text-center text-foreground mb-12">
-            Trusted & Secure Platform
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
-            {trustBadges.map((badge, idx) => {
-              const Icon = badge.icon;
-              return (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <Card className="p-6 text-center h-full hover:border-primary/50 transition-colors">
-                    <div className="flex justify-center mb-4">
-                      <div className="p-3 rounded-full bg-primary/10">
-                        <Icon className="w-6 h-6 text-primary" />
-                      </div>
-                    </div>
-                    <h3 className="font-semibold text-foreground mb-2">{badge.title}</h3>
-                    <p className="text-sm text-muted-foreground">{badge.description}</p>
-                  </Card>
-                </motion.div>
-              );
-            })}
+          <div className="space-y-3">
+            {valueProps.map((prop, idx) => (
+              <motion.p
+                key={idx}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="text-lg md:text-xl text-muted-foreground"
+              >
+                {prop}
+              </motion.p>
+            ))}
           </div>
         </motion.div>
 
@@ -81,7 +49,7 @@ export const TrustSignals = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Card className="p-8 bg-gradient-card">
+          <Card className="p-6 md:p-8 bg-gradient-to-br from-card to-muted border-border">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {stats.map((stat, idx) => (
                 <motion.div
@@ -92,10 +60,10 @@ export const TrustSignals = () => {
                   transition={{ delay: 0.3 + idx * 0.1 }}
                   className="text-center"
                 >
-                  <div className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-hero mb-2">
+                  <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent mb-1">
                     {stat.value}
                   </div>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">{stat.label}</p>
                 </motion.div>
               ))}
             </div>
