@@ -80,6 +80,27 @@ export type Database = {
         }
         Relationships: []
       }
+      biocog_knowledgebase: {
+        Row: {
+          answer: string
+          embedding: string | null
+          id: number
+          question: string
+        }
+        Insert: {
+          answer: string
+          embedding?: string | null
+          id?: number
+          question: string
+        }
+        Update: {
+          answer?: string
+          embedding?: string | null
+          id?: number
+          question?: string
+        }
+        Relationships: []
+      }
       carbon_credits: {
         Row: {
           created_at: string
@@ -1106,6 +1127,28 @@ export type Database = {
         }[]
       }
       is_admin: { Args: { user_uuid: string }; Returns: boolean }
+      match_biocog_kb: {
+        Args: {
+          match_count?: number
+          match_threshold?: number
+          query_embedding: string
+        }
+        Returns: {
+          answer: string
+          id: number
+          question: string
+          similarity: number
+        }[]
+      }
+      search_similar_vectors: {
+        Args: { query_embedding: string; top_k: number }
+        Returns: {
+          answer: string
+          id: number
+          question: string
+          similarity: number
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "msme_owner" | "accountant"
